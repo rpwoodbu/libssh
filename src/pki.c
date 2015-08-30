@@ -223,6 +223,8 @@ const char *ssh_key_type_to_char(enum ssh_keytypes_e type) {
       return "ssh-dss-cert-v01@xxxxxxxxxxx";
     case SSH_KEYTYPE_RSA_CERT01:
       return "ssh-rsa-cert-v01@xxxxxxxxxxx";
+    case SSH_KEYTYPE_ECDSA_SHA2_NISTP256_CERT01:
+      return "ecdsa-sha2-nistp256-cert-v01@openssh.com";
     case SSH_KEYTYPE_UNKNOWN:
       return NULL;
   }
@@ -271,6 +273,9 @@ enum ssh_keytypes_e ssh_key_type_from_name(const char *name) {
         return SSH_KEYTYPE_DSS_CERT01;
     } else if (strcmp(name, "ssh-rsa-cert-v01@xxxxxxxxxxx") == 0){
         return SSH_KEYTYPE_RSA_CERT01;
+    } else if (
+        strcmp(name, "ecdsa-sha2-nistp256-cert-v01@openssh.com") == 0) {
+        return SSH_KEYTYPE_ECDSA_SHA2_NISTP256_CERT01;
     }
 
     return SSH_KEYTYPE_UNKNOWN;
@@ -391,6 +396,7 @@ void ssh_signature_free(ssh_signature sig)
         case SSH_KEYTYPE_RSA_CERT00:
         case SSH_KEYTYPE_DSS_CERT01:
         case SSH_KEYTYPE_RSA_CERT01:
+        case SSH_KEYTYPE_ECDSA_SHA2_NISTP256_CERT01:
         case SSH_KEYTYPE_UNKNOWN:
             break;
     }
@@ -743,6 +749,7 @@ static int pki_import_pubkey_buffer(ssh_buffer buffer,
         case SSH_KEYTYPE_RSA_CERT00:
         case SSH_KEYTYPE_DSS_CERT01:
         case SSH_KEYTYPE_RSA_CERT01:
+        case SSH_KEYTYPE_ECDSA_SHA2_NISTP256_CERT01:
             {
                 ssh_string cert;
                 uint32_t buffer_len = ssh_buffer_get_len(buffer);
@@ -1116,6 +1123,7 @@ int ssh_pki_generate(enum ssh_keytypes_e type, int parameter,
         case SSH_KEYTYPE_RSA_CERT00:
         case SSH_KEYTYPE_DSS_CERT01:
         case SSH_KEYTYPE_RSA_CERT01:
+        case SSH_KEYTYPE_ECDSA_SHA2_NISTP256_CERT01:
         case SSH_KEYTYPE_UNKNOWN:
             goto error;
     }
