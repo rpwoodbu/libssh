@@ -253,7 +253,11 @@ enum ssh_keytypes_e{
   SSH_KEYTYPE_RSA,
   SSH_KEYTYPE_RSA1,
   SSH_KEYTYPE_ECDSA,
-  SSH_KEYTYPE_ED25519
+  SSH_KEYTYPE_ED25519,
+  SSH_KEYTYPE_DSS_CERT00,
+  SSH_KEYTYPE_RSA_CERT00,
+  SSH_KEYTYPE_DSS_CERT01,
+  SSH_KEYTYPE_RSA_CERT01
 };
 
 enum ssh_keycmp_e {
@@ -559,6 +563,9 @@ LIBSSH_API int ssh_pki_export_pubkey_base64(const ssh_key key,
                                             char **b64_key);
 LIBSSH_API int ssh_pki_export_pubkey_file(const ssh_key key,
                                           const char *filename);
+
+LIBSSH_API int ssh_pki_copy_cert_to_privkey(const ssh_key cert_key,
+                                            ssh_key privkey);
 
 LIBSSH_API const char *ssh_pki_key_ecdsa_name(const ssh_key key);
 

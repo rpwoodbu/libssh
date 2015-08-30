@@ -162,6 +162,7 @@ void ssh_key_clean (ssh_key key){
         SAFE_FREE(key->ed25519_privkey);
     }
     SAFE_FREE(key->ed25519_pubkey);
+    if (key->cert != NULL) ssh_string_free(key->cert);
     key->flags=SSH_KEY_FLAG_EMPTY;
     key->type=SSH_KEYTYPE_UNKNOWN;
     key->ecdsa_nid = 0;
@@ -214,6 +215,14 @@ const char *ssh_key_type_to_char(enum ssh_keytypes_e type) {
       return "ssh-ecdsa";
     case SSH_KEYTYPE_ED25519:
       return "ssh-ed25519";
+    case SSH_KEYTYPE_DSS_CERT00:
+      return "ssh-dss-cert-v00@xxxxxxxxxxx";
+    case SSH_KEYTYPE_RSA_CERT00:
+      return "ssh-rsa-cert-v00@xxxxxxxxxxx";
+    case SSH_KEYTYPE_DSS_CERT01:
+      return "ssh-dss-cert-v01@xxxxxxxxxxx";
+    case SSH_KEYTYPE_RSA_CERT01:
+      return "ssh-rsa-cert-v01@xxxxxxxxxxx";
     case SSH_KEYTYPE_UNKNOWN:
       return NULL;
   }
@@ -254,6 +263,14 @@ enum ssh_keytypes_e ssh_key_type_from_name(const char *name) {
         return SSH_KEYTYPE_ECDSA;
     } else if (strcmp(name, "ssh-ed25519") == 0){
         return SSH_KEYTYPE_ED25519;
+    } else if (strcmp(name, "ssh-dss-cert-v00@xxxxxxxxxxx") == 0){
+        return SSH_KEYTYPE_DSS_CERT00;
+    } else if (strcmp(name, "ssh-rsa-cert-v00@xxxxxxxxxxx") == 0){
+        return SSH_KEYTYPE_RSA_CERT00;
+    } else if (strcmp(name, "ssh-dss-cert-v01@xxxxxxxxxxx") == 0){
+        return SSH_KEYTYPE_DSS_CERT01;
+    } else if (strcmp(name, "ssh-rsa-cert-v01@xxxxxxxxxxx") == 0){
+        return SSH_KEYTYPE_RSA_CERT01;
     }
 
     return SSH_KEYTYPE_UNKNOWN;
@@ -370,6 +387,10 @@ void ssh_signature_free(ssh_signature sig)
         case SSH_KEYTYPE_ED25519:
             SAFE_FREE(sig->ed25519_sig);
             break;
+        case SSH_KEYTYPE_DSS_CERT00:
+        case SSH_KEYTYPE_RSA_CERT00:
+        case SSH_KEYTYPE_DSS_CERT01:
+        case SSH_KEYTYPE_RSA_CERT01:
         case SSH_KEYTYPE_UNKNOWN:
             break;
     }
@@ -716,6 +737,22 @@ static int pki_import_pubkey_buffer(ssh_buffer buffer,
                 if (rc == SSH_ERROR) {
                     goto fail;
                 }
+            }
+            break;
+        case SSH_KEYTYPE_DSS_CERT00:
+        case SSH_KEYTYPE_RSA_CERT00:
+        case SSH_KEYTYPE_DSS_CERT01:
+        case SSH_KEYTYPE_RSA_CERT01:
+            {
+                ssh_string cert;
+                uint32_t buffer_len = ssh_buffer_get_len(buffer);
+
+                cert = ssh_string_new(buffer_len);
+                if (cert == NULL) {
+                    goto fail;
+                }
+                ssh_string_fill(cert, ssh_buffer_get_begin(buffer), buffer_len);
+                key->cert = (void*) cert;
             }
             break;
         case SSH_KEYTYPE_RSA:
@@ -1075,6 +1112,10 @@ int ssh_pki_generate(enum ssh_keytypes_e type, int parameter,
                 goto error;
             }
             break;
+        case SSH_KEYTYPE_DSS_CERT00:
+        case SSH_KEYTYPE_RSA_CERT00:
+        case SSH_KEYTYPE_DSS_CERT01:
+        case SSH_KEYTYPE_RSA_CERT01:
         case SSH_KEYTYPE_UNKNOWN:
             goto error;
     }
@@ -1246,6 +1287,28 @@ int ssh_pki_export_pubkey_file(const ssh_key key,
     fclose(fp);
 
     return SSH_OK;
+}
+
+/**
+ * @brief Copy the certificate part of a public key into a private key.
+ *
+ * @param[in]  certkey  The certificate key.
+ *
+ * @param[in]  privkey  The target private key to copy the certificate to.
+ *
+ * @returns SSH_OK on success, SSH_ERROR otherwise.
+ **/
+int ssh_pki_copy_cert_to_privkey(const ssh_key certkey, ssh_key privkey) {
+  ssh_string cert_string;
+
+  cert_string = ssh_string_copy(certkey->cert);
+  if (cert_string == NULL) {
+    return SSH_ERROR;
+  }
+
+  privkey->cert = cert_string;
+  privkey->cert_type = certkey->type;
+  return SSH_OK;
 }
 
 int ssh_pki_export_pubkey_rsa1(const ssh_key key,

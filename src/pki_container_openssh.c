@@ -123,6 +123,10 @@ static int pki_openssh_import_privkey_blob(ssh_buffer key_blob_buffer,
         ssh_pki_log("Unsupported private key method %s", key->type_c);
         goto fail;
     case SSH_KEYTYPE_UNKNOWN:
+    case SSH_KEYTYPE_DSS_CERT00:
+    case SSH_KEYTYPE_RSA_CERT00:
+    case SSH_KEYTYPE_DSS_CERT01:
+    case SSH_KEYTYPE_RSA_CERT01:
         ssh_pki_log("Unknown private key protocol %s", key->type_c);
         goto fail;
     }

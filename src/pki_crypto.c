@@ -651,6 +651,10 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
             BIO_free(mem);
             ssh_pki_log("PEM output not supported for key type ssh-ed25519");
             return NULL;
+        case SSH_KEYTYPE_DSS_CERT00:
+        case SSH_KEYTYPE_RSA_CERT00:
+        case SSH_KEYTYPE_DSS_CERT01:
+        case SSH_KEYTYPE_RSA_CERT01:
         case SSH_KEYTYPE_UNKNOWN:
             BIO_free(mem);
             ssh_pki_log("Unkown or invalid private key type %d", key->type);
@@ -777,6 +781,10 @@ ssh_key pki_private_key_from_base64(const char *b64_key,
 #endif
         case SSH_KEYTYPE_ED25519:
             /* Cannot open ed25519 keys with libcrypto */
+        case SSH_KEYTYPE_DSS_CERT00:
+        case SSH_KEYTYPE_RSA_CERT00:
+        case SSH_KEYTYPE_DSS_CERT01:
+        case SSH_KEYTYPE_RSA_CERT01:
         case SSH_KEYTYPE_UNKNOWN:
             BIO_free(mem);
             ssh_pki_log("Unkown or invalid private key type %d", type);
@@ -873,6 +881,18 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
     buffer = ssh_buffer_new();
     if (buffer == NULL) {
         return NULL;
+    }
+
+    if (key->cert != NULL) {
+      ssh_string cert = (ssh_string)key->cert;
+      size_t cert_len = ssh_string_len(cert);
+
+      rc = ssh_buffer_add_data(buffer, ssh_string_data(cert), cert_len);
+      if (rc != 0) {
+        ssh_buffer_free(buffer);
+        return NULL;
+      }
+      goto makestring;
     }
 
     type_s = ssh_string_from_char(key->type_c);
@@ -1027,6 +1047,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
             goto fail;
     }
 
+makestring:
     str = ssh_string_new(buffer_get_rest_len(buffer));
     if (str == NULL) {
         goto fail;
