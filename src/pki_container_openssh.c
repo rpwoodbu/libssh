@@ -128,6 +128,8 @@ static int pki_openssh_import_privkey_blob(ssh_buffer key_blob_buffer,
     case SSH_KEYTYPE_DSS_CERT01:
     case SSH_KEYTYPE_RSA_CERT01:
     case SSH_KEYTYPE_ECDSA_SHA2_NISTP256_CERT01:
+    case SSH_KEYTYPE_ECDSA_SHA2_NISTP384_CERT01:
+    case SSH_KEYTYPE_ECDSA_SHA2_NISTP521_CERT01:
         ssh_pki_log("Unknown private key protocol %s", key->type_c);
         goto fail;
     }
