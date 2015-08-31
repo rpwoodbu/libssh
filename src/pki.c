@@ -216,13 +216,13 @@ const char *ssh_key_type_to_char(enum ssh_keytypes_e type) {
     case SSH_KEYTYPE_ED25519:
       return "ssh-ed25519";
     case SSH_KEYTYPE_DSS_CERT00:
-      return "ssh-dss-cert-v00@xxxxxxxxxxx";
+      return "ssh-dss-cert-v00@openssh.com";
     case SSH_KEYTYPE_RSA_CERT00:
-      return "ssh-rsa-cert-v00@xxxxxxxxxxx";
+      return "ssh-rsa-cert-v00@openssh.com";
     case SSH_KEYTYPE_DSS_CERT01:
-      return "ssh-dss-cert-v01@xxxxxxxxxxx";
+      return "ssh-dss-cert-v01@openssh.com";
     case SSH_KEYTYPE_RSA_CERT01:
-      return "ssh-rsa-cert-v01@xxxxxxxxxxx";
+      return "ssh-rsa-cert-v01@openssh.com";
     case SSH_KEYTYPE_ECDSA_SHA2_NISTP256_CERT01:
       return "ecdsa-sha2-nistp256-cert-v01@openssh.com";
     case SSH_KEYTYPE_UNKNOWN:
@@ -265,13 +265,13 @@ enum ssh_keytypes_e ssh_key_type_from_name(const char *name) {
         return SSH_KEYTYPE_ECDSA;
     } else if (strcmp(name, "ssh-ed25519") == 0){
         return SSH_KEYTYPE_ED25519;
-    } else if (strcmp(name, "ssh-dss-cert-v00@xxxxxxxxxxx") == 0){
+    } else if (strcmp(name, "ssh-dss-cert-v00@openssh.com") == 0){
         return SSH_KEYTYPE_DSS_CERT00;
-    } else if (strcmp(name, "ssh-rsa-cert-v00@xxxxxxxxxxx") == 0){
+    } else if (strcmp(name, "ssh-rsa-cert-v00@openssh.com") == 0){
         return SSH_KEYTYPE_RSA_CERT00;
-    } else if (strcmp(name, "ssh-dss-cert-v01@xxxxxxxxxxx") == 0){
+    } else if (strcmp(name, "ssh-dss-cert-v01@openssh.com") == 0){
         return SSH_KEYTYPE_DSS_CERT01;
-    } else if (strcmp(name, "ssh-rsa-cert-v01@xxxxxxxxxxx") == 0){
+    } else if (strcmp(name, "ssh-rsa-cert-v01@openssh.com") == 0){
         return SSH_KEYTYPE_RSA_CERT01;
     } else if (
         strcmp(name, "ecdsa-sha2-nistp256-cert-v01@openssh.com") == 0) {
