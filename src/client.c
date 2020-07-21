@@ -126,7 +126,8 @@ static int callback_receive_banner(const void *data, size_t len, void *user) {
 
   		return ret;
   	}
-  	if(i>127){
+  	/* Match banner size set by OpenSSH. */
+  	if(i>8192){
   		/* Too big banner */
   		session->session_state=SSH_SESSION_STATE_ERROR;
   		ssh_set_error(session,SSH_FATAL,"Receiving banner: too large banner");
